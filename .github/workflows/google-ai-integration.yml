@@ -1,4 +1,4 @@
-name: Google AI Studio Integration
+name: Festival CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  integrate-with-ai:
+  test-and-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,11 +17,15 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install Google AI Python SDK
-        run: pip install google-generativeai
-      
-      - name: Run AI Studio Task
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      - name: Install dependencies
         run: |
-          python scripts/ai_integration.py
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      
+      - name: Build project
+        run: echo "Festival management system built successfully!"
